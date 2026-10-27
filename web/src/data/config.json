@@ -1,0 +1,28 @@
+{
+  "_nota": "Configuración de la tienda. Lo marcado ejemplo/pendiente NO es real: zonas y tarifas por definir con Daniel; horario pendiente de la PQRSD a la Alcaldía de Cartagena (docs/40 §4).",
+  "marca": "LICORES K&J",
+  "ciudad": "Cartagena",
+  "whatsapp": "573104970555",
+  "correo": "licoreskyj@gmail.com",
+  "instagram": "licoreskyj",
+  "modoPrueba": true,
+  "indexable": false,
+  "pedidoMinimo": 30000,
+  "horario": null,
+  "zonas": [
+    { "id": "zona-a", "nombre": "Zona A (ejemplo)", "tarifa": 5000, "ejemplo": true },
+    { "id": "zona-b", "nombre": "Zona B (ejemplo)", "tarifa": 8000, "ejemplo": true },
+    { "id": "zona-c", "nombre": "Zona C (ejemplo)", "tarifa": 12000, "ejemplo": true }
+  ],
+  "regalos": [
+    { "nivel": "Frío", "desde": 70000, "regalo": "Hielo 3 kg" },
+    { "nivel": "Hidrata", "desde": 120000, "regalo": "Hielo 3 kg + 2 aguas" },
+    { "nivel": "Parche", "desde": 200000, "regalo": "Hielo 7 kg + 2 bebidas hidratantes + 2 aguas" },
+    { "nivel": "Fiesta", "desde": 350000, "regalo": "Hielo 7 kg + 4 bebidas hidratantes + 4 aguas + vasos" }
+  ],
+  "pagos": [
+    { "id": "efectivo", "nombre": "Efectivo contra entrega" },
+    { "id": "transferencia", "nombre": "Transferencia o QR (Nequi, Bre-B) al confirmar el pedido" },
+    { "id": "link", "nombre": "Link de pago con tarjeta (te lo enviamos al confirmar)" }
+  ]
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+# Páginas horneadas por scripts/hornear.mjs (se rehacen en cada dev/build)
+/index.html
+/catalogo.html
+/carrito.html
+/terminos.html
+/privacidad.html
+/producto/
