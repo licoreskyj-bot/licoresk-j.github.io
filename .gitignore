@@ -1,0 +1,28 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+.mcp.json
+
+# Datos privados del negocio (clientes, ventas, inventario real) — NUNCA al repo
+*.xlsx
+*.xls
+*.csv
+
+# Claves de cuenta de servicio / llaves de pasarelas (SECRETO)
+*serviceAccount*.json
+*-sa-key.json
+*-adminsdk-*.json
+*.pem
+
+# Artefactos locales
+*-debug.log
+.firebase/
+.superpowers/
+.playwright-mcp/
+
+# Permisos LOCALES del harness de Claude Code
+.claude/settings.local.json
