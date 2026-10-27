@@ -1,10 +1,20 @@
 node_modules/
 dist/
+.wrangler/
 # Páginas horneadas por scripts/hornear.mjs (se rehacen en cada dev/build)
 /index.html
+/404.html
+/catalogo/
+/carrito/
+/calculadora/
+/terminos/
+/privacidad/
+/producto/
+# Rutas viejas (antes de las URLs limpias)
 /catalogo.html
 /carrito.html
 /terminos.html
 /privacidad.html
-/404.html
-/producto/
+# Generados por scripts/hornear.mjs desde config.json
+/public/robots.txt
+/public/sitemap.xml

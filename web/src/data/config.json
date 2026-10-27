@@ -7,8 +7,15 @@
   "instagram": "licoreskyj",
   "modoPrueba": true,
   "indexable": false,
+  "_notaDominio": "dominio: la dirección final del sitio con https (p. ej. «https://…»). Mientras sea null no hay canonical, og:url ni sitemap, y og:image queda relativa (el build lo avisa).",
+  "dominio": null,
   "pedidoMinimo": 30000,
   "horario": null,
+  "_notaEntregas": "docs/40 §4: no publicar domicilios después de medianoche hasta tener la respuesta de la Alcaldía. horaCierre/horaApertura en hora de Bogotá (HH:MM); entre las dos el carrito no ofrece «Lo antes posible». Mientras horaApertura sea null no se ofrece en ninguna hora. pedidosPausados = interruptor para ley seca (mensajePausa: texto opcional). Los valores los decide Daniel.",
+  "horaCierre": "00:00",
+  "horaApertura": null,
+  "pedidosPausados": false,
+  "mensajePausa": null,
   "zonas": [
     { "id": "zona-a", "nombre": "Zona A (ejemplo)", "tarifa": 5000, "ejemplo": true },
     { "id": "zona-b", "nombre": "Zona B (ejemplo)", "tarifa": 8000, "ejemplo": true },
@@ -21,8 +28,11 @@
     { "nivel": "Fiesta", "desde": 350000, "regalo": "Hielo 7 kg + 4 bebidas hidratantes + 4 aguas + vasos" }
   ],
   "pagos": [
-    { "id": "efectivo", "nombre": "Efectivo contra entrega" },
-    { "id": "transferencia", "nombre": "Transferencia o QR (Nequi, Bre-B) al confirmar el pedido" },
-    { "id": "link", "nombre": "Link de pago con tarjeta (te lo enviamos al confirmar)" }
+    { "id": "efectivo", "nombre": "Efectivo contra entrega", "detalle": "Pagas al recibir." },
+    { "id": "nequi", "nombre": "Nequi", "detalle": "Te enviamos el número al confirmar el pedido." },
+    { "id": "breb", "nombre": "Bre-B o código QR", "detalle": "Te enviamos la llave o el QR al confirmar." },
+    { "id": "transferencia", "nombre": "Transferencia bancaria", "detalle": "Te enviamos los datos al confirmar." },
+    { "id": "tarjeta", "nombre": "Tarjeta débito o crédito", "detalle": "Pago en línea con Wompi.", "proximamente": true },
+    { "id": "cuotas", "nombre": "Tarjeta de crédito a cuotas", "detalle": "Pago en línea con Wompi.", "proximamente": true }
   ]
 }

@@ -1,0 +1,5 @@
+# URLs viejas (con .html) → URLs limpias.
+/catalogo.html /catalogo/ 301
+/carrito.html /carrito/ 301
+/terminos.html /terminos/ 301
+/privacidad.html /privacidad/ 301
