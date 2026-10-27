@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LICORES K&amp;J · Licorera y punto frío</title>
+<meta name="description" content="LICORES K&amp;J: cervezas, whisky, ron, vodka y aguardiente, siempre fríos. Pedidos por WhatsApp. Venta exclusiva para mayores de 18 años.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --oro: #b89658; --negro: #0A0A0A; --texto: #ece6da; --suave: #a39c8f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--negro); color: var(--texto); font-family: Montserrat, system-ui, sans-serif; }
+  main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 48px 16px; }
+  .marca { font-family: Cinzel, serif; font-weight: 600; color: var(--oro); font-size: clamp(44px, 11vw, 96px); letter-spacing: .04em; margin: 0; line-height: 1; }
+  .sub { color: var(--oro); letter-spacing: .5em; font-size: 13px; font-weight: 600; margin: 14px 0 32px; padding-left: .5em; }
+  .lema { font-size: 18px; max-width: 520px; line-height: 1.6; margin: 0 0 32px; }
+  .btn { display: inline-block; background: var(--oro); color: var(--negro); text-decoration: none; font-weight: 600; padding: 15px 30px; border-radius: 999px; font-size: 16px; }
+  .nota { color: var(--suave); font-size: 14px; margin-top: 22px; }
+  footer { border-top: 1px solid #222; padding: 20px 16px; text-align: center; color: var(--suave); font-size: 13px; line-height: 1.7; }
+  footer b { color: var(--texto); }
+  #edad { position: fixed; inset: 0; background: rgba(10,10,10,.97); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 9; }
+  #edad div { max-width: 380px; text-align: center; }
+  #edad p { font-size: 20px; margin: 0 0 24px; }
+  #edad button { font: inherit; font-weight: 600; border: 1px solid var(--oro); border-radius: 999px; padding: 12px 26px; margin: 6px; cursor: pointer; background: var(--oro); color: var(--negro); }
+  #edad button.no { background: transparent; color: var(--oro); }
+</style>
+</head>
+<body>
+<div id="edad" hidden>
+  <div>
+    <p class="marca" style="font-size:40px">K&amp;J</p>
+    <p>¿Eres mayor de 18 años?</p>
+    <button type="button" id="si">Sí, soy mayor</button>
+    <button type="button" class="no" id="no">No</button>
+  </div>
+</div>
+<main>
+  <h1 class="marca">K&amp;J</h1>
+  <p class="sub">LICORES</p>
+  <p class="lema">Cervezas, whisky, ron, vodka y aguardiente, siempre fríos.</p>
+  <a class="btn" href="https://wa.me/573104970555?text=Hola%20LICORES%20K%26J%2C%20quiero%20hacer%20un%20pedido">Haz tu pedido por WhatsApp</a>
+  <p class="nota">WhatsApp 310 497 0555 · licoreskyj@gmail.com<br>Muy pronto, nuestra tienda en línea.</p>
+</main>
+<footer>
+  <b>El exceso de alcohol es perjudicial para la salud.</b><br>
+  <b>Prohíbase el expendio de bebidas embriagantes a menores de edad.</b><br>
+  Venta exclusiva para mayores de 18 años · © 2026 LICORES K&amp;J
+</footer>
+<script>
+  (function () {
+    var caja = document.getElementById('edad'), ok = false;
+    try { ok = localStorage.getItem('kyj-edad') === 'si'; } catch (e) {}
+    if (!ok) caja.hidden = false;
+    document.getElementById('si').onclick = function () { try { localStorage.setItem('kyj-edad', 'si'); } catch (e) {} caja.hidden = true; };
+    document.getElementById('no').onclick = function () { location.href = 'https://www.google.com'; };
+  })();
+</script>
+</body>
+</html>
