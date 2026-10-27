@@ -216,6 +216,15 @@ ${cfg.pagos.map((m, i) => `            <label class="opcion"><input type="radio"
     </section>`,
 });
 
+paginas['404.html'] = molde({
+    titulo: `Página no encontrada · ${cfg.marca}`, descripcion: 'Esta página no existe.', pagina: 'error',
+    cuerpo: `    <section class="contenedor seccion" style="text-align:center">
+      <h1>Esta página no existe</h1>
+      <p class="seccion-intro">Puede que el enlace esté mal escrito o que el producto ya no esté.</p>
+      <a href="/" class="boton">Volver al inicio</a>
+    </section>`,
+});
+
 const legal = (archivo, titulo, secciones) => {
     paginas[archivo] = molde({
         titulo: `${titulo} · ${cfg.marca}`, descripcion: `${titulo} de ${cfg.marca}.`, pagina: 'legal',
