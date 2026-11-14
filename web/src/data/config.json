@@ -27,6 +27,41 @@
     { "nivel": "Parche", "desde": 200000, "regalo": "Hielo 7 kg + 2 bebidas hidratantes + 2 aguas" },
     { "nivel": "Fiesta", "desde": 350000, "regalo": "Hielo 7 kg + 4 bebidas hidratantes + 4 aguas + vasos" }
   ],
+  "_notaEscenas": "Fotos de ambiente de la web (IA local, lote A que Daniel aprobó el 27-oct; docs/44 §6 y §9). Cada «archivo» existe en public/escenas/ como <archivo>-<ancho>.{avif,webp} (anchos fijos por formato: 4:5 = 192/480/720/1080, 3:4 = 600/900, 16:9 = 960/1280/1920, 1:1 = 320/640/1080). «alt» describe la escena REAL de la foto (sin palabras clave); «foco» = qué parte se conserva al recortar (object-position). Si cambias una foto, súbela con OTRO nombre (/escenas/* tiene caché de 30 días). Las botellas de estas fotos son de ambiente: nunca van junto a un precio.",
+  "escenas": {
+    "categorias": {
+      "cerveza": { "archivo": "c01-cerveza", "alt": "Balde metálico con hielo y botellas de cerveza ámbar sobre una mesa de madera rústica, junto a una baranda blanca", "foco": "50% 14%" },
+      "aguardiente": { "archivo": "c02-aguardiente", "alt": "Botella de licor transparente, dos copitas y un plato con limón y mango sobre un mantel de lino crema", "foco": "50% 42%" },
+      "ron": { "archivo": "c03-ron", "alt": "Botella de ron ámbar, vaso con hielo, medio limón y canela sobre una mesa de madera, con un barril detrás", "foco": "52% 52%" },
+      "whisky": { "archivo": "c04-whisky", "alt": "Vaso tallado con una esfera de hielo y whisky dorado junto a un decantador redondo y una cáscara de naranja sobre pizarra", "foco": "50% 50%" },
+      "vodka": { "archivo": "c05-vodka", "alt": "Vaso alto con hielo y una rueda de limón sobre hielo picado, con vaho frío alrededor", "foco": "50% 42%" },
+      "combos": { "archivo": "c06-combos", "alt": "Caja de madera vista desde arriba con botellas cerradas, una bolsa de hielo, limones y vasos", "foco": "50% 24%" },
+      "acompanantes": { "archivo": "c07-hielo-y-acompanantes", "alt": "Bolsa de hielo, dos botellas de gaseosa, limones y una taza de chips sobre un mesón de mármol junto a la ventana", "foco": "50% 40%" }
+    },
+    "revista": {
+      "_nota": "Una foto por pantalla: «celular» (3:4) hasta 599 px de ancho y «computador» (16:9) desde 600. Un solo alt, que vale para las dos.",
+      "celular": "p01-portada-celular",
+      "computador": "p02-portada-computador",
+      "alt": "Vaso con hielo y licor dorado, cubierto de gotas frías, sobre una barra de madera oscura"
+    },
+    "calculadora": "t01-oro-liquido",
+    "regalos": "t02-hielo",
+    "gota": "t03-la-gota",
+    "promesa": {
+      "_nota": "Banda 7 «La promesa» (docs/44 §3): una foto 1:1 por promesa, en <archivo>-<480|720>.{avif,webp}. Lote B (IA local), elegidas por el juez y APROBADAS por Daniel el 27-oct (las que se usan aquí). F01 «Llega frío» no salió (las 8 semillas traen botellas con etiqueta): va F03, el hielo. F02 (el bolso) no se usa: promete un bolso térmico que no consta.",
+      "frio": { "archivo": "f03-hielo", "alt": "Cubos de hielo cayendo en un vaso con licor dorado, con una luz cálida por detrás sobre fondo oscuro", "foco": "50% 40%" },
+      "entrega": { "archivo": "g02-barrio", "alt": "Terrazas con tanques de agua y palmas de un barrio de Cartagena al atardecer, con una matera de buganvilla en primer plano", "foco": "64% 50%" },
+      "pago": { "archivo": "k02-ron", "alt": "Botella de ron, dos botellas de cola, una bolsa de hielo, dos vasos y limones sobre una mesa de madera oscura", "foco": "50% 50%" }
+    }
+  },
+  "_notaOcasiones": "Banda 3 «¿Cuál es el plan?» y páginas /plan/<slug>/ (docs/44 §3-§4). Fotos del lote B (IA local, <archivo>-<480|720|1080>.{avif,webp}), elegidas por el juez y APROBADAS por Daniel el 27-oct (las que se usan aquí). «publicar»: false = no sale ni la tarjeta ni la página (Día de partido espera la revisión legal, decisión V6 de docs/44 §2). «categorias»: lo que se muestra en su página (ids de catalogo.json). «calculadora»: si su página trae la calculadora exprés; si no, el canal por WhatsApp con «mensaje». Textos sin promesas ni datos que no estén en esta configuración.",
+  "ocasiones": [
+    { "slug": "fiesta-en-casa", "titulo": "Fiesta en casa", "linea": "Cerveza, aguardiente y hielo para tu gente.", "bajada": "Calcula cuánto llevar según las personas, arma tu pedido y confírmalo por WhatsApp.", "archivo": "o01-fiesta-en-casa", "alt": "Mesa de madera en una terraza al anochecer con dos baldes de hielo con cervezas, platos de patacones y bombillos encendidos", "foco": "50% 62%", "categorias": ["cerveza", "aguardiente", "combos", "acompanantes"], "calculadora": true, "publicar": true },
+    { "slug": "dia-de-partido", "titulo": "Día de partido", "linea": "Cerveza fría y algo para picar.", "bajada": "Arma tu pedido y confírmalo por WhatsApp.", "archivo": "o02-dia-de-partido", "alt": "Sala de noche con un balde de hielo con cervezas, crispetas y empanadas sobre una mesa baja y un balón en el tapete", "categorias": ["cerveza", "acompanantes"], "calculadora": true, "publicar": false },
+    { "slug": "reunion", "titulo": "Reunión en la terraza", "linea": "Ron, whisky y hielo para la terraza.", "bajada": "Elige tu botella, suma hielo, limones y gaseosas, y programa la entrega para la hora de tu reunión.", "archivo": "o03-reunion", "alt": "Mesa redonda en una terraza de Cartagena al atardecer con dos vasos de ron con hielo, una botella, limones y chips", "foco": "50% 60%", "categorias": ["ron", "whisky", "acompanantes"], "calculadora": true, "publicar": true },
+    { "slug": "rumba-en-casa", "titulo": "Rumba en casa", "linea": "Cerveza bien fría y hielo para la noche.", "bajada": "Calcula cuánto llevar, arma el pedido y recíbelo frío en tu casa.", "archivo": "o04-rumba-en-casa", "alt": "Sala de noche con un parlante de madera, luces cálidas en la pared y un balde con hielo y cervezas junto a vasos y limones", "foco": "60% 60%", "categorias": ["cerveza", "aguardiente", "vodka", "acompanantes"], "calculadora": true, "publicar": true },
+    { "slug": "para-regalar", "titulo": "Para regalar", "linea": "Una botella para celebrar a alguien.", "bajada": "Cuéntanos qué quieres regalar y te ayudamos a escoger. Lo confirmas por WhatsApp.", "archivo": "o05-para-regalar", "alt": "Caja de madera oscura con paja, una botella de licor ámbar y dos copas, atada con una cinta dorada, junto a una tarjeta en blanco", "foco": "50% 30%", "categorias": ["whisky", "ron", "combos"], "calculadora": false, "mensaje": "Hola LICORES K&J, quiero armar un regalo", "publicar": true }
+  ],
   "pagos": [
     { "id": "efectivo", "nombre": "Efectivo contra entrega", "detalle": "Pagas al recibir." },
     { "id": "nequi", "nombre": "Nequi", "detalle": "Te enviamos el número al confirmar el pedido." },

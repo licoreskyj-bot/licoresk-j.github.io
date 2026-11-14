@@ -6,7 +6,7 @@
 import { cart, MAX_POR_PRODUCTO } from './cart.js';
 import { observeReveals } from './reveal.js';
 import { precio, precioPorUnidad, regalos, imagenProducto, iconoProducto, icono, escapar, RUTAS, rutaProducto } from './comun.js';
-import { sugerirFiesta } from './fiesta.js';
+import { sugerirFiesta, tragosTotales, SUPUESTOS } from './fiesta.js';
 import catalogo from '../data/catalogo.json';
 import cfg from '../data/config.json';
 
@@ -21,7 +21,8 @@ const wa = (texto) => `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(t
 const movimientoReducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Memoria del navegador: SOLO comodidades (nunca datos de entrega). Puede fallar (modo privado).
-const CLAVES = { edad: 'kyj-edad-v1', texto: 'kyj-texto-v1', zona: 'kyj-zona-v1', ultimo: 'kyj-ultimo-v1' };
+// (La pausa de la portada, «kyj-quieto-v1», ya no existe: el script del <head> la borra si quedó guardada.)
+const CLAVES = { edad: 'kyj-edad-v1', texto: 'kyj-texto-v1', zona: 'kyj-zona-v1', ultimo: 'kyj-ultimo-v1', desliza: 'kyj-desliza-v1' };
 const memoria = {
     leer(clave) { try { return localStorage.getItem(clave); } catch { return null; } },
     guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch { /* sin memoria: sigue funcionando */ } },
@@ -262,11 +263,12 @@ function navActiva() {
 // ── Catálogo: filtro por categoría (?c=) y búsqueda sobre las tarjetas ya horneadas.
 function catalogoInteractivo() {
     const tarjetas = $$('.grilla .tarjeta');
-    if (!tarjetas.length) return;
+    if (!tarjetas.length) { pasillosEnlace(); return; }
     const buscar = $('[data-buscar]');
     const ids = new Set(catalogo.categorias.map(c => c.id));
     let categoria = new URLSearchParams(location.search).get('c') || '';
     if (!ids.has(categoria)) categoria = '';
+    const tituloBase = document.title;
     const aplicar = () => {
         const texto = (buscar?.value || '').trim().toLowerCase();
         let visibles = 0;
@@ -276,11 +278,16 @@ function catalogoInteractivo() {
             if (ver) visibles++;
         }
         for (const f of $$('[data-filtro]')) f.setAttribute('aria-pressed', String(f.dataset.filtro === categoria));
+        // La pestaña dice la categoría (el h1 visible ya la dice). Las bandas «revista» salen solo sin búsqueda.
+        document.title = categoria ? `${nombreCategoria[categoria]} · Catálogo · ${cfg.marca}` : tituloBase;
+        $('[data-grilla]')?.classList.toggle('buscando', Boolean(texto));
+        // La cabecera partida, el anillo del pasillo y el filtro inicial los pinta el CSS con html[data-c].
+        if (categoria) document.documentElement.dataset.c = categoria; else delete document.documentElement.dataset.c;
         const vacio = $('[data-vacio]');
         if (vacio) {
             vacio.hidden = visibles > 0;
             const que = categoria ? nombreCategoria[categoria].toLowerCase() : (texto || 'un producto');
-            $('[data-vacio-wa]', vacio).href = wa(`Hola ${cfg.marca}, estoy buscando ${que}`);
+            $('[data-vacio-wa]', vacio).href = wa(categoria && !texto ? `Hola ${cfg.marca}, ¿qué tienen de ${que}?` : `Hola ${cfg.marca}, estoy buscando ${que}`);
         }
         navActiva();
     };
@@ -293,6 +300,58 @@ function catalogoInteractivo() {
     }
     buscar?.addEventListener('input', aplicar);
     aplicar();
+    pasilloALaVista();
+    bandasEnLaRejilla();
+}
+
+// El carril de pasillos (celular) trae a la vista el pasillo de la categoría abierta, centrado.
+function pasilloALaVista() {
+    const carril = $('.pasillos-lista');
+    const activo = carril && $('.pasillo[aria-pressed="true"], .pasillo[aria-current]', carril);
+    if (!activo || carril.scrollWidth - carril.clientWidth < 8) return;
+    const c = carril.getBoundingClientRect();
+    const a = activo.getBoundingClientRect();
+    carril.scrollLeft += (a.left + a.width / 2) - (c.left + c.width / 2);
+}
+
+// Bandas «revista» del catálogo (cada 8 fichas): con 5 columnas (ordenador) la 8.ª ficha no cierra la fila y
+// la banda dejaba huecos; se corre al final de esa fila. Se mueve en el DOM, así el orden de lectura y el de
+// la pantalla siguen siendo el mismo. Si ya no quedan fichas después, la banda no sale.
+// Ninguna fila coja (Daniel, 27-oct): si la última fila de fichas queda incompleta, la ÚLTIMA banda la cierra
+// ocupando los huecos que quedan (data-relleno y --span = cuántas columnas cubre; estilos.css la pinta como
+// una tarjeta de plan cuando es angosta).
+function bandasEnLaRejilla() {
+    const grilla = $('[data-grilla]');
+    const bandas = grilla ? $$('.cat-revista', grilla) : [];
+    if (!bandas.length) return;
+    const recolocar = () => {
+        // Las columnas las fija estilos.css (--cols de .grilla, por punto de quiebre y por categoría).
+        const cols = parseInt(getComputedStyle(grilla).getPropertyValue('--cols'), 10) || 1;
+        const fichas = $$(':scope > .tarjeta', grilla);
+        const resto = fichas.length % cols;
+        bandas.forEach((b, k) => {
+            const relleno = resto > 0 && k === bandas.length - 1;
+            const n = relleno ? fichas.length : Math.ceil((8 * (k + 1)) / cols) * cols;
+            b.hidden = !relleno && n >= fichas.length;
+            b.toggleAttribute('data-relleno', relleno);
+            if (relleno) b.style.setProperty('--span', String(cols - resto)); else b.style.removeProperty('--span');
+            if (!b.hidden && fichas[n - 1].nextElementSibling !== b) fichas[n - 1].after(b);
+        });
+    };
+    let raf = 0;
+    addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(recolocar); });
+    recolocar();
+}
+
+// Catálogo sin productos: los pasillos son enlaces (?c=); el de la categoría abierta queda marcado.
+function pasillosEnlace() {
+    const ids = new Set(catalogo.categorias.map(c => c.id));
+    const c = new URLSearchParams(location.search).get('c') || '';
+    const actual = ids.has(c) ? c : '';
+    if (!actual) delete document.documentElement.dataset.c;
+    else document.title = `${nombreCategoria[actual]} · Catálogo · ${cfg.marca}`;
+    for (const a of $$('a.pasillo')) a.dataset.pasillo === actual ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
+    pasilloALaVista();
 }
 
 // ── Carrito y pedido.
@@ -536,8 +595,9 @@ function carritoInteractivo() {
         const p = $(`#e-${nombre}`);
         if (p && !p.hidden) { p.hidden = true; e.target.removeAttribute('aria-invalid'); }
     });
-    // Una sola región viva que no se rehace: anuncia la cantidad nueva de forma fiable.
-    const anuncio = $('[data-anuncio]');
+    // Una sola región viva que no se rehace: anuncia la cantidad nueva de forma fiable. (La barra de
+    // anuncio usa data-barra-anuncio: antes compartían atributo y esto escribía en la barra.)
+    const anuncio = $('p[data-anuncio]');
     const anunciar = (texto) => { if (anuncio) { anuncio.textContent = ''; requestAnimationFrame(() => { anuncio.textContent = texto; }); } };
     $('[data-lineas]').addEventListener('click', (e) => {
         const b = e.target.closest('button');
@@ -666,6 +726,9 @@ function calculadoraInteractiva() {
         input.value = Math.min(Number(input.max), Math.max(Number(input.min), (parseInt(input.value, 10) || 0) + Number(b.dataset.paso)));
         pintar(true);
     });
+    // Llegada desde la calculadora exprés de la portada: ?personas=N (dentro del rango del campo).
+    const pedidas = parseInt(new URLSearchParams(location.search).get('personas'), 10);
+    if (Number.isFinite(pedidas)) form.personas.value = Math.min(Number(form.personas.max), Math.max(Number(form.personas.min), pedidas));
     caja.addEventListener('click', (e) => {
         if (!e.target.closest('[data-calc-agregar]') || !sugerencia) return;
         // Agrega exactamente lo que se ve; si algo no cabe (ya había unidades en el pedido), lo dice.
@@ -692,7 +755,7 @@ function mensajeFiesta(s) {
 function inclinacion() {
     const fino = matchMedia('(hover: hover) and (pointer: fine)').matches && !movimientoReducido;
     if (!fino) return;
-    for (const t of $$('.tarjeta, .categoria')) {
+    for (const t of $$('.tarjeta, .antojo-tarjeta')) {
         let raf = 0;
         let x = 0.5;
         let y = 0.5;
@@ -717,10 +780,223 @@ function inclinacion() {
     }
 }
 
+// ── Portada con movimiento (solo inicio). SIN botón de pausa (Daniel, 27-oct: «el video de portada no
+// debe poderse pausar, es muy ligero»). El movimiento se detiene solo con «reducir movimiento» del
+// sistema (CSS: la portada queda quieta, sin video), fuera de la vista y con la pestaña oculta.
+// Las capas de luz del logo (brillo, licor, reflejo) aparecen cuando el logo está listo (estilos.css:
+// sin .lista no existen): sus máscaras se piden después, así no compiten con el LCP. Si el logo
+// tarda, a los 3 s aparecen igual.
+function portadaLista() {
+    const portada = $('.portada');
+    const img = portada?.querySelector('.portada-logo');
+    if (!img) return;
+    const lista = () => portada.classList.add('lista');
+    (img.decode ? img.decode() : Promise.resolve()).then(lista, lista);
+    setTimeout(lista, 3000);
+}
+// Video de la escena, reflejo que sigue al cursor y destello al tocar: src/js/portada.js, pedido tras
+// «load» y en un momento libre. Con «reducir movimiento» ni se descarga (tampoco lo precarga el
+// service worker: vite.config.js lo deja fuera de la precarga).
+function portadaEnMovimiento() {
+    if (movimientoReducido || !$('[data-escena]')) return;
+    const cargar = () => import('./portada.js').catch(() => { /* la portada CSS sigue completa */ });
+    const libre = () => ('requestIdleCallback' in window ? requestIdleCallback(cargar, { timeout: 1500 }) : setTimeout(cargar, 200));
+    if (document.readyState === 'complete') libre();
+    else addEventListener('load', libre, { once: true });
+}
+
+// Videos de fondo de las bandas (hoy: el oro líquido de la calculadora exprés). Mismas reglas que la
+// portada: nunca en el HTML ni precargado; se pide el módulo tras «load», en un momento libre, y con
+// «reducir movimiento» ni se descarga.
+function videosDeBanda() {
+    if (movimientoReducido || !$('[data-banda-video]')) return;
+    const cargar = () => import('./banda-video.js').catch(() => { /* queda la foto fija */ });
+    const libre = () => ('requestIdleCallback' in window ? requestIdleCallback(cargar, { timeout: 2000 }) : setTimeout(cargar, 300));
+    if (document.readyState === 'complete') libre();
+    else addEventListener('load', libre, { once: true });
+}
+
 // ── Web-app instalable: service worker solo en producción (el de desarrollo no se registra).
 function registrarServiceWorker() {
     if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return;
     addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => { /* sin PWA: el sitio sigue igual */ }));
+}
+
+// ── Banda 0: barra de anuncio. Celular y tableta: rota cada 5 s (solo transform y opacity); tocar la barra
+// (o su botón, la parada del teclado) la detiene y otro toque la reanuda. Quieta fuera de la vista, con la
+// pestaña oculta y con la capa de edad abierta. Con «reducir movimiento» no rota: cada toque muestra el aviso
+// siguiente. Ordenador (≥ 861 px): los avisos quietos en una fila (estilos.css), sin rotar y sin botón.
+function barraDeAnuncio() {
+    const barra = $('[data-barra-anuncio]');
+    const msgs = barra ? $$('.anuncio-msg', barra) : [];
+    const control = barra ? $('.anuncio-control', barra) : null;
+    if (msgs.length < 2 || !control) return;
+    const raiz = document.documentElement;
+    const accion = $('[data-barra-accion]', barra);
+    const rm = matchMedia('(prefers-reduced-motion: reduce)');
+    const fila = matchMedia('(min-width: 861px)'); // la MISMA medida de estilos.css («avisos quietos en una fila»)
+    const manual = () => rm.matches;
+    let i = 0;
+    let tocada = false;
+    let encima = false;
+    let enfocada = false; // con el foco del teclado dentro tampoco rota (patrón de carrusel de la APG)
+    let aLaVista = true;
+    let reloj = 0;
+    const mostrar = (n, conPaso) => {
+        const antes = msgs[i];
+        i = (n + msgs.length) % msgs.length;
+        for (const m of msgs) m.classList.toggle('sin-paso', !conPaso);
+        antes.classList.remove('activo');
+        antes.setAttribute('aria-hidden', 'true');
+        if (conPaso) antes.classList.add('sale');
+        msgs[i].classList.remove('sale');
+        msgs[i].classList.add('activo');
+        msgs[i].removeAttribute('aria-hidden'); // el lector lee el aviso que se ve, no los escondidos
+        // El que salió vuelve abajo sin verse (sin transición), listo para su próxima entrada.
+        if (conPaso) setTimeout(() => { if (!antes.classList.contains('activo')) { antes.classList.add('sin-paso'); antes.classList.remove('sale'); } }, 750);
+    };
+    const corre = () => !fila.matches && !manual() && !tocada && !encima && !enfocada && aLaVista && !document.hidden && !raiz.classList.contains('pedir-edad');
+    const programar = () => {
+        clearTimeout(reloj);
+        if (corre()) reloj = setTimeout(() => { mostrar(i + 1, true); programar(); }, 5000);
+    };
+    // El estado lo dice SOLO aria-pressed; el nombre del botón queda fijo (si cambiara con el estado, el lector
+    // oiría «Seguir con los avisos, presionado»: dos verdades). En modo manual no hay estado: cada toque avanza.
+    const pintarModo = () => {
+        // En la fila del ordenador se ven todos: el lector los lee todos.
+        for (const m of msgs) (fila.matches || m.classList.contains('activo')) ? m.removeAttribute('aria-hidden') : m.setAttribute('aria-hidden', 'true');
+        if (manual()) {
+            barra.dataset.manual = '';
+            control.removeAttribute('aria-pressed');
+            accion.textContent = 'Ver el aviso siguiente';
+        } else {
+            delete barra.dataset.manual;
+            control.setAttribute('aria-pressed', String(tocada));
+            accion.textContent = 'Pausar los avisos';
+        }
+        programar();
+    };
+    const tocar = () => {
+        if (fila.matches) return;
+        if (manual()) { mostrar(i + 1, false); return; }
+        tocada = !tocada;
+        pintarModo();
+    };
+    control.addEventListener('click', (e) => { e.stopPropagation(); tocar(); });
+    barra.addEventListener('click', tocar); // toda la barra responde al dedo (44 px de alto a todo el ancho)
+    barra.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { encima = true; programar(); } });
+    barra.addEventListener('pointerleave', () => { encima = false; programar(); });
+    barra.addEventListener('focusin', () => { enfocada = true; programar(); });
+    barra.addEventListener('focusout', () => { enfocada = false; programar(); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { aLaVista = e.isIntersecting; programar(); }).observe(barra);
+    document.addEventListener('visibilitychange', programar);
+    rm.addEventListener?.('change', pintarModo);
+    fila.addEventListener?.('change', pintarModo);
+    // Al cerrar la capa de edad (html.pedir-edad) empieza a rotar.
+    new MutationObserver(pintarModo).observe(raiz, { attributes: true, attributeFilter: ['class'] });
+    pintarModo();
+}
+
+// ── Carriles del celular con teclado. Al llegar con Tab a una tarjeta que asoma a medias, el carril la trae
+// entera a la vista (el navegador no lo hace si ya se ve un borde); sin animación con «reducir movimiento».
+// Un carril sin enlaces (la promesa) se vuelve enfocable solo mientras se desliza, para recorrerlo con las
+// flechas; en el ordenador, donde no se desliza, no suma una parada de Tab.
+function carrilesConTeclado() {
+    const listas = $$('.antojo-lista, .planes-lista, [data-carril-teclado]');
+    if (!listas.length) return;
+    const ajustar = () => {
+        for (const l of $$('[data-carril-teclado]')) {
+            if (l.scrollWidth - l.clientWidth > 8) l.setAttribute('tabindex', '0');
+            else l.removeAttribute('tabindex');
+        }
+    };
+    for (const lista of listas) {
+        lista.addEventListener('focusin', (e) => {
+            const tarjeta = e.target.closest('li');
+            if (!tarjeta || lista.scrollWidth - lista.clientWidth < 8) return;
+            const r = tarjeta.getBoundingClientRect();
+            const c = lista.getBoundingClientRect();
+            if (r.left >= c.left - 1 && r.right <= c.right + 1) return;
+            tarjeta.scrollIntoView({ block: 'nearest', inline: 'start', behavior: movimientoReducido ? 'auto' : 'smooth' });
+        });
+    }
+    ajustar();
+    let espera = 0;
+    addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(ajustar, 200); }, { passive: true });
+}
+
+// ── «¿Qué se te antoja?»: el aviso «Desliza» sale solo la primera vez, en el celular y si el carril
+// de verdad se desliza; al deslizar (o a los 6 s) se va. Se recuerda desde que se ve (memoria con
+// try/catch: en modo privado puede volver a salir, sin romper nada).
+function avisoDesliza() {
+    const carril = $('[data-carril]');
+    const lista = carril?.querySelector('.antojo-lista');
+    const aviso = carril?.querySelector('[data-carril-aviso]');
+    if (!lista || !aviso || memoria.leer(CLAVES.desliza) === 'visto') return;
+    if (lista.scrollWidth - lista.clientWidth < 24) return; // ordenador: retícula, no se desliza
+    let listo = false;
+    const irse = () => {
+        if (listo) return;
+        listo = true;
+        memoria.guardar(CLAVES.desliza, 'visto');
+        aviso.classList.add('se-va');
+        setTimeout(() => { aviso.hidden = true; }, 450);
+    };
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver(([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        aviso.hidden = false;
+        memoria.guardar(CLAVES.desliza, 'visto'); // ya se vio: no vuelve a salir
+        setTimeout(irse, 6000);
+    }, { threshold: 0.6 }) : null;
+    if (io) io.observe(lista); else aviso.hidden = false;
+    lista.addEventListener('scroll', irse, { passive: true, once: true });
+}
+
+// ── Banda 4: calculadora exprés. La misma fórmula que /calculadora/ (fiesta.js), en vivo, y el botón
+// lleva las personas a la calculadora completa para armar el pedido.
+function calculadoraExpres() {
+    const form = $('[data-expres]');
+    const rango = form?.querySelector('[data-expres-personas]');
+    if (!rango) return;
+    const horas = 4;
+    const min = Number(rango.min);
+    const max = Number(rango.max);
+    const poner = (sel, valor) => { for (const el of $$(`[data-x="${sel}"]`, form)) el.textContent = valor; };
+    const pintar = () => {
+        const n = Math.min(max, Math.max(min, parseInt(rango.value, 10) || min));
+        poner('personas', n);
+        poner('personas-texto', n === 1 ? 'persona' : 'personas');
+        poner('tragos', tragosTotales(n, horas));
+        poner('hielo', Math.ceil(n * SUPUESTOS.hieloKgPorPersona));
+        const aguas = Math.ceil(n * SUPUESTOS.aguasPorPersona);
+        poner('aguas', aguas);
+        poner('aguas-texto', aguas === 1 ? 'agua' : 'aguas');
+        rango.setAttribute('aria-valuetext', `${n} ${n === 1 ? 'persona' : 'personas'}`);
+        rango.style.setProperty('--p', `${((n - min) / (max - min)) * 100}%`);
+        const armar = $('[data-expres-armar]', form);
+        if (armar) armar.href = `${RUTAS.calculadora}?personas=${n}`;
+    };
+    rango.addEventListener('input', pintar);
+    form.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-expres-paso]');
+        if (!b) return;
+        rango.value = Math.min(max, Math.max(min, (parseInt(rango.value, 10) || min) + Number(b.dataset.expresPaso)));
+        pintar();
+    });
+    form.addEventListener('submit', (e) => { e.preventDefault(); location.href = $('[data-expres-armar]', form).href; });
+    pintar();
+}
+
+// ── Regalos: el riel de la escalera se llena (transform) al entrar a la vista; con «reducir movimiento»,
+// lleno de una vez. Los niveles, los montos y los regalos se ven siempre (solo el riel y los nodos se animan).
+function escaleraQueSeLlena() {
+    const escalera = $('[data-escalera]');
+    if (!escalera) return;
+    const llenar = () => escalera.classList.add('llena');
+    if (movimientoReducido || !('IntersectionObserver' in window)) { llenar(); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { llenar(); io.disconnect(); } }, { threshold: 0.35 });
+    io.observe(escalera);
 }
 
 // ── Arranque.
@@ -736,9 +1012,12 @@ cart.onChange(pintarContador);
 zonaDeDomicilio();
 botonesAgregar();
 navActiva();
+barraDeAnuncio();
 const pagina = document.body.dataset.pagina;
 if (pagina === 'producto') compraFija();
-if (pagina === 'inicio') repetirEnInicio();
+if (pagina === 'inicio') { repetirEnInicio(); portadaLista(); portadaEnMovimiento(); avisoDesliza(); calculadoraExpres(); escaleraQueSeLlena(); videosDeBanda(); }
+if (pagina === 'plan') { avisoDesliza(); calculadoraExpres(); videosDeBanda(); }
+carrilesConTeclado();
 if (pagina === 'catalogo') catalogoInteractivo();
 if (pagina === 'carrito') carritoInteractivo();
 if (pagina === 'calculadora') calculadoraInteractiva();

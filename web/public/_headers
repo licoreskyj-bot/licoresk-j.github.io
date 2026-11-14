@@ -8,3 +8,7 @@
   Cache-Control: public, max-age=31536000, immutable
 /fuentes/*
   Cache-Control: public, max-age=2592000
+# Fotos y videos de ambiente (portada, bandas, catálogo): pesan y no cambian; si se rehace uno, se le
+# cambia el nombre. Nunca entran al service worker (src/sw.js no intercepta /escenas/).
+/escenas/*
+  Cache-Control: public, max-age=2592000

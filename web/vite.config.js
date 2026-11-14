@@ -46,10 +46,15 @@ function serviceWorker() {
             }
             const version = huella.digest('hex').slice(0, 12);
             // Precarga solo lo que toda visita usa. El logo grande NO: según la pantalla se pide el
-            // de 640 o el de 1200, y el SW guarda el que de verdad se pidió.
+            // de 640 o el de 1200, y el SW guarda el que de verdad se pidió. Los videos de /escenas/
+            // tampoco, NUNCA: pesan, solo los pide la portada con buena red y el navegador los trae
+            // por rangos (src/sw.js tampoco los intercepta).
             const precarga = [
                 '/', '/catalogo/', '/carrito/', '/calculadora/',
-                ...archivos.filter(n => /^assets\/.+\.(js|css|woff2)$/.test(n)).map(n => `/${n}`),
+                // portada-*.js tampoco: solo lo pide el inicio con movimiento (con «reducir movimiento» nunca);
+                // si se pide, el SW lo guarda al vuelo (archivoCachePrimero).
+                // banda-video-*.js igual: solo lo pide el inicio con movimiento y con un video de banda.
+                ...archivos.filter(n => /^assets\/.+\.(js|css|woff2)$/.test(n) && !/^assets\/(portada|banda-video)-/.test(n)).map(n => `/${n}`),
                 '/fuentes/montserrat-latin-wght-normal.woff2',
                 '/fuentes/playfair-display-latin-wght-normal.woff2',
                 '/marca/monograma-96.webp',
