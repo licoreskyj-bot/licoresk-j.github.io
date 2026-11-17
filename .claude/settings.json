@@ -1,0 +1,63 @@
+{
+  "_puente_f8": "El cerebro de este proyecto vive en ../brain-private/licoreskyj/. Este repo es solo el sitio. El cerebro de K&J todavia NO tiene el kernel del brain-kit (ni manifest ni los ficheros que leen los ganchos de arranque: TODO-01 de su 10), asi que aqui solo va el FRENO: el guard-destructivo canonico de la boveda con --root (cerebro), con la ruta construida desde $CLAUDE_PROJECT_DIR para que no se apague en silencio si la sesion cambia de carpeta. Cuando se instale el kernel, se suman los ganchos de arranque con la forma de los de Cars o INSEMA. Sin la boveda clonada al lado, el gancho falla y el CLAUDE.md-puente dice por ruta donde leer.",
+  "env": {
+    "_que": "Variables de entorno de ESTE proyecto. DISABLE_TELEMETRY apaga la telemetria del CLI del plugin modern-web-guidance (Google Chrome), que por defecto envia a Google las consultas que el agente escribe sobre NUESTRO codigo (README del paquete, medido 2026-09-03). Condicion 1 de DICTAMEN-C4 §10 D-C4-29.",
+    "DISABLE_TELEMETRY": "1"
+  },
+  "permissions": {
+    "deny": [
+      "Bash(* --no-verify*)",
+      "Bash(* --no-verify)",
+      "Bash(* --amend*)",
+      "Bash(* --amend)",
+      "Bash(* --no-gpg-sign*)",
+      "Bash(* --no-gpg-sign)",
+      "Bash(git push --force*)",
+      "Bash(git push * --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git reset --hard)",
+      "Bash(git reset * --hard*)",
+      "Bash(git reset * --hard)",
+      "Bash(git clean *)",
+      "Bash(git clean)",
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(rm -Rf*)",
+      "Bash(rm -rF*)",
+      "Bash(rm -r -f*)",
+      "Bash(rm -f -r*)",
+      "Bash(rm --recursive --force*)",
+      "Bash(git config core.hooksPath*)",
+      "Bash(git config * core.hooksPath*)",
+      "PowerShell(* --no-verify*)",
+      "PowerShell(* --amend*)",
+      "PowerShell(git push --force*)",
+      "PowerShell(git push * --force*)",
+      "PowerShell(git push -f*)",
+      "PowerShell(git reset --hard*)",
+      "PowerShell(git clean *)",
+      "PowerShell(rm -rf*)",
+      "PowerShell(Remove-Item * -Recurse*)",
+      "PowerShell(* -Recurse * -Force*)",
+      "PowerShell(git config core.hooksPath*)",
+      "PowerShell(git config * core.hooksPath*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/../brain-private/kernel/guard-destructivo.mjs\" --root \"$CLAUDE_PROJECT_DIR/../brain-private/licoreskyj\"",
+            "timeout": 5,
+            "statusMessage": "🛡️ guard-destructivo (2ª capa)…"
+          }
+        ]
+      }
+    ]
+  }
+}

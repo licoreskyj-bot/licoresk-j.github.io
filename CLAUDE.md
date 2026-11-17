@@ -6,8 +6,17 @@ Este repo es **solo el sitio** (LICORES K&J, punto frío de cervezas y licores).
 `../brain-private/licoreskyj/`: `CLAUDE.md` (el router), `docs/05-ESTADO-GLOBAL.md`,
 `docs/10-MEMORIA-CORTO-PLAZO.md` y el análisis de arranque `docs/40-PLAN-ARRANQUE.md`.
 
-Todavía NO hay hook de arranque (el kernel del brain-kit se instala cuando exista código: TODO en el
-`10`). **Léelos POR RUTA antes de tocar nada** — router, `05`, `10`.
+Los tres primeros entran **ENTEROS** por los imports de abajo (desde el 17-nov-2026). **Si no los ves en tu
+contexto, falta el permiso de imports externos de esta carpeta: LÉELOS POR RUTA antes de tocar nada** —
+router, `05`, `10`— y avísale a Daniel. El `40` se lee por ruta cuando toque.
+
+@../brain-private/licoreskyj/CLAUDE.md
+@../brain-private/licoreskyj/docs/05-ESTADO-GLOBAL.md
+@../brain-private/licoreskyj/docs/10-MEMORIA-CORTO-PLAZO.md
+
+Todavía NO hay hook de arranque (el kernel del brain-kit se instala cuando exista código: TODO-01 del
+`10`). `.claude/settings.json` trae solo el freno de comandos peligrosos (`guard-destructivo` del kernel
+de la bóveda) y su lista de prohibidos.
 
 ## Dónde va cada commit
 
